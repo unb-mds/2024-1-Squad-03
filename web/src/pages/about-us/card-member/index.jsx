@@ -13,7 +13,7 @@ export default function CardMember({nome, descricao, github, id}){
             </span>
             <span className={styles.cardAboutUsPhotoContext}>
                 <img className={styles.cardAboutUsPhoto} src={`../../../../assets/members/${id}.jpg`} alt='Foto do membro'/>
-                <a href={github}>
+                <a href={github} target='blank'>
                     <FaGithub/> Github
                 </a>
             </span>
