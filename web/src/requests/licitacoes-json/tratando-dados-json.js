@@ -552,7 +552,7 @@ const dataJSON = [
     }
 ]
 
-console.log(dataJSON[0]["Código UG"])
+// console.log(dataJSON[0]["Código UG"])
 
 const dataFormat = () => {
     return dataJSON.map((licitacao) => {
@@ -578,4 +578,8 @@ const dataFormat = () => {
     })
 }
 
-console.log(dataFormat())
+const listaLicitacoes = dataFormat()
+
+console.log(listaLicitacoes)
+
+export default listaLicitacoes
