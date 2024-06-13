@@ -16,7 +16,7 @@ def processa_licitacoes(mes_inicial, ano_inicial, mes_final, ano_final):
             )
 
 def main():
-    parser = argparse.ArgumentParser(description='Processa licita√ß√µes DOU')
+    parser = argparse.ArgumentParser(description='Processa licitaÁıes DOU')
     parser.add_argument('inicio', nargs='?', help='Data inicial no formato mm/aaaa')
     parser.add_argument('fim', nargs='?', help='Data final no formato mm/aaaa')
 
@@ -30,17 +30,17 @@ def main():
             mes_inicial, ano_inicial = map(int, args.inicio.split('/'))
             mes_final, ano_final = map(int, args.fim.split('/'))
 
-            # Verifica√ß√£o b√°sica para garantir que as datas s√£o v√°lidas
+            # VerificaÁ„o b·sica para garantir que as datas s„o v·lidas
             if not (1 <= mes_inicial <= 12 and 1 <= mes_final <= 12):
                 raise ValueError('Os meses devem estar entre 1 e 12.')
             if ano_inicial > ano_final or (ano_inicial == ano_final and mes_inicial > mes_final):
-                raise ValueError('A data inicial deve ser anterior ou igual √† data final.')
+                raise ValueError('A data inicial deve ser anterior ou igual ‡ data final.')
 
             processa_licitacoes(mes_inicial, ano_inicial, mes_final, ano_final)
         except ValueError as ve:
             print(f'Erro nos argumentos: {ve}')
     else:
-        # Sem argumentos, processa conforme l√≥gica original
+        # Sem argumentos, processa conforme lÛgica original
         if mes_atual == 1:
             for i in range(2002, ano_atual):
                 for j in range(1, 13):

@@ -7,31 +7,29 @@ from tqdm import tqdm
 from lxml import etree as ET
 from time import sleep
 
-
-
-# Fun√ß√£o para capturar o link do banco de dados do DOU
+# FunÁ„o para capturar o link do banco de dados do DOU
 def captura_link_banco_de_dados_DOU_mes(ano, mes):
     url_bd_dou = "https://www.in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados?"
-    meses = ['NULL - (meses equivalentes aos seus n√∫meros)', 'Janeiro', 'Fevereiro', 'Mar√ßo', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    meses = ['NULL - (meses equivalentes aos seus n˙meros)', 'Janeiro', 'Fevereiro', 'MarÁo', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
     data_input = datetime(ano, mes, 1)
     data_atual = datetime.now()
 
     if data_input > data_atual:
-        return "Data informada √© posterior √† data atual."
+        return "Data informada È posterior ‡ data atual."
     else:
         url_consulta = url_bd_dou + "ano=" + str(ano) + "&mes=" + meses[mes]
         response = requests.get(url_consulta)
 
-        # Verifica se a requisi√ß√£o foi bem sucedida
+        # Verifica se a requisiÁ„o foi bem sucedida
         if response.status_code == 200:
-            html_content = response.content  # Pega o conte√∫do HTML da resposta
+            html_content = response.content  # Pega o conte˙do HTML da resposta
             # Usa o Beautiful Soup para parsear o HTML
             soup = BeautifulSoup(html_content, 'html.parser')
 
             # Encontrar todos os elementos <a>
             links = soup.find_all('a')
 
-            # Iterar sobre os links e encontrar o href que cont√©m S03 e .zip
+            # Iterar sobre os links e encontrar o href que contÈm S03 e .zip
             for link in links:
                 href = link.get('href')
                 if href and 'S03' in href and '.zip' in href:
@@ -39,25 +37,25 @@ def captura_link_banco_de_dados_DOU_mes(ano, mes):
             
             return "Nenhum link encontrado para esse periodo"
         else:
-            return f"Falha ao acessar a p√°gina. Status code: {response.status_code}"
+            return f"Falha ao acessar a p·gina. Status code: {response.status_code}"
 
 def faz_download_do_zip(link_html, anor, mesr, max_retries=3):
-    # Obt√©m o diret√≥rio atual
+    # ObtÈm o diretÛrio atual
     direct = os.getcwd()
     diretorio_content = os.path.join(direct, "content")
 
     if not os.path.exists(diretorio_content):
         os.makedirs(diretorio_content)
         
-    # Verifica se os par√¢metros ano e mes est√£o presentes na URL    
+    # Verifica se os par‚metros ano e mes est„o presentes na URL    
     salva = os.path.join(diretorio_content, f"{anor} - {mesr}")
     if not os.path.exists(salva):
         os.makedirs(salva)
 
-    # Obt√©m o nome do arquivo ZIP a partir do link
+    # ObtÈm o nome do arquivo ZIP a partir do link
     nome_arquivo_zip = link_html.split('/')[-1]
 
-    # L√≥gica de retry
+    # LÛgica de retry
     for attempt in range(max_retries):
         try:
             # Faz o download do arquivo ZIP com barra de progresso
@@ -76,9 +74,9 @@ def faz_download_do_zip(link_html, anor, mesr, max_retries=3):
             t.close()
             sleep(5)  # Espera 5 segundos antes de tentar novamente
     else:
-        raise Exception("Falha no download ap√≥s v√°rias tentativas")
+        raise Exception("Falha no download apÛs v·rias tentativas")
 
-    # Extrai o arquivo ZIP para uma pasta com o ano e o m√™s com barra de progresso
+    # Extrai o arquivo ZIP para uma pasta com o ano e o mÍs com barra de progresso
     with zipfile.ZipFile(os.path.join(diretorio_content, nome_arquivo_zip), 'r') as zip_ref:
         zip_size = sum((file.file_size for file in zip_ref.infolist()))
         t = tqdm(total=zip_size, unit='iB', unit_scale=True)
@@ -87,68 +85,68 @@ def faz_download_do_zip(link_html, anor, mesr, max_retries=3):
             zip_ref.extract(file, salva)
         t.close()
     
-    # Remove o arquivo ZIP ap√≥s a extra√ß√£o
+    # Remove o arquivo ZIP apÛs a extraÁ„o
     os.remove(os.path.join(diretorio_content, nome_arquivo_zip))
     
-    # Apaga todos os arquivos que n√£o terminem com .xml com barra de progresso
-    for root, dirs, files in os.walk(salva):  # Alterado para garantir que apenas os arquivos na pasta de extra√ß√£o sejam verificados
-        for file in tqdm(files, desc="Removendo arquivos que n√£o s√£o .xml"):
+    # Apaga todos os arquivos que n„o terminem com .xml com barra de progresso
+    for root, dirs, files in os.walk(salva):  # Alterado para garantir que apenas os arquivos na pasta de extraÁ„o sejam verificados
+        for file in tqdm(files, desc="Removendo arquivos que n„o s„o .xml"):
             if not file.endswith(".xml"):
                 os.remove(os.path.join(root, file))
     
-    # Retorna o diret√≥rio onde os arquivos foram extra√≠dos
+    # Retorna o diretÛrio onde os arquivos foram extraÌdos
     return salva
 def processa_xml_obtem_brasilia(diretorio_dos_xml):
-    # Lista de palavras espec√≠ficas
-    palavras_especificas = ["Brasilia", "Bras√≠lia", " DF "]
+    # Lista de palavras especÌficas
+    palavras_especificas = ["Brasilia", "BrasÌlia", " DF "]
     
-    # Iterar sobre todos os arquivos no diret√≥rio
+    # Iterar sobre todos os arquivos no diretÛrio
     for root, dirs, files in os.walk(diretorio_dos_xml):
         for file in tqdm(files, desc="Processando arquivos XML"):
             caminho_arquivo = os.path.join(root, file)
             if file.endswith(".xml"):
                 try:
-                    # Verifica o conte√∫do dos arquivos XML usando lxml
+                    # Verifica o conte˙do dos arquivos XML usando lxml
                     parser = ET.XMLParser(recover=True)
                     tree = ET.parse(caminho_arquivo, parser)
                     root_element = tree.getroot()
                     conteudo = ET.tostring(root_element, encoding='utf-8').decode('utf-8')
 
-                    # Verifica se alguma das palavras espec√≠ficas est√° no conte√∫do do XML
+                    # Verifica se alguma das palavras especÌficas est· no conte˙do do XML
                     if sum(conteudo.count(palavra) for palavra in palavras_especificas) != len(palavras_especificas):
                         os.remove(caminho_arquivo)
                     else:
-                        # Verifica se as palavras "horarios" ou "hor√°rio" est√£o pr√≥ximas das palavras-chave
+                        # Verifica se as palavras "horarios" ou "hor·rio" est„o prÛximas das palavras-chave
                         for palavra_chave in palavras_especificas:
                             if palavra_chave in conteudo:
                                 indice_palavra_chave = conteudo.index(palavra_chave)
                                 trecho_analisado = conteudo[max(0, indice_palavra_chave - 30):indice_palavra_chave + len(palavra_chave) + 30]
-                                if "horarios" in trecho_analisado or "hor√°rio" in trecho_analisado:
+                                if "horarios" in trecho_analisado or "hor·rio" in trecho_analisado:
                                     os.remove(caminho_arquivo)
-                                    break  # Se encontrar, n√£o precisa mais verificar o resto das palavras-chave
+                                    break  # Se encontrar, n„o precisa mais verificar o resto das palavras-chave
                 except ET.XMLSyntaxError:
                     print(f"Arquivo XML malformado removido: {caminho_arquivo}")
                     os.remove(caminho_arquivo)
 
-    print("Processamento de arquivos XML conclu√≠do!")
+    print("Processamento de arquivos XML concluÌdo!")
     return diretorio_dos_xml
 def processa_xml_licitacoes(diretorio_dos_xml):
-    # Lista de palavras relacionadas a licita√ß√µes
-    palavras_licitacao = [" licita√ß√£o ", " licitacao ", " licitacoes "]
+    # Lista de palavras relacionadas a licitaÁıes
+    palavras_licitacao = [" licitaÁ„o ", " licitacao ", " licitacoes "]
     
-    # Iterar sobre todos os arquivos no diret√≥rio
+    # Iterar sobre todos os arquivos no diretÛrio
     for root, dirs, files in os.walk(diretorio_dos_xml):
-        for file in tqdm(files, desc="Processando arquivos XML para verificar licita√ß√µes"):
+        for file in tqdm(files, desc="Processando arquivos XML para verificar licitaÁıes"):
             caminho_arquivo = os.path.join(root, file)
             if file.endswith(".xml"):
-                # Verifica o conte√∫do dos arquivos XML
+                # Verifica o conte˙do dos arquivos XML
                 tree = ET.parse(caminho_arquivo)
                 root_element = tree.getroot()
                 conteudo = ET.tostring(root_element, encoding='utf-8').decode('utf-8')
 
-                # Verifica se o vetor de palavras relacionadas a licita√ß√µes est√° presente
+                # Verifica se o vetor de palavras relacionadas a licitaÁıes est· presente
                 if not any(palavra_licitacao in conteudo for palavra_licitacao in palavras_licitacao):
                     os.remove(caminho_arquivo)
 
-    print("Verifica√ß√£o de licita√ß√µes nos arquivos XML conclu√≠da!")  
+    print("VerificaÁ„o de licitaÁıes nos arquivos XML concluÌda!")  
 # Exemplo de uso:
